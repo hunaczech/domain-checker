@@ -26,7 +26,7 @@ final class DomainCheckerService
     ];
 
     public function __construct(
-        private readonly WhoisClient $whoisClient,
+        private readonly WhoisClientInterface $whoisClient,
     ) {
     }
 

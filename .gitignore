@@ -21,9 +21,11 @@ Thumbs.db
 *.cache
 *.log
 /var/
+.phpunit.cache/
 
 # Claude Code local settings
 .claude/settings.local.json
 
 # User data
 domains.csv
+domains_result.csv
