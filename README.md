@@ -26,6 +26,8 @@ CLI tool to check domain availability via WHOIS.
 - `.bg` - Bulgaria
 - `.pt` - Portugal
 - `.it` - Italy
+- `.hu` - Hungary
+- `.pl` - Poland
 
 ## Requirements
 

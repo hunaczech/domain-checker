@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DomainCheckerServiceTest extends TestCase
 {
-    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us', 'sk', 'ua', 'lt', 'fi', 'se', 'nl', 'bg', 'pt', 'it'];
+    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us', 'sk', 'ua', 'lt', 'fi', 'se', 'nl', 'bg', 'pt', 'it', 'hu', 'pl'];
 
     #[Test]
     #[DataProvider('availableDomainProvider')]
@@ -232,6 +232,16 @@ final class DomainCheckerServiceTest extends TestCase
             'it',
             "Domain:             test-available-domain.it\nStatus:             AVAILABLE\n",
         ];
+
+        yield 'hu - available' => [
+            'hu',
+            "% Whois server 1.0\n% No match\n",
+        ];
+
+        yield 'pl - available' => [
+            'pl',
+            "No information available about domain name test-available-domain.pl in the Registry NASK database.\n",
+        ];
     }
 
     public static function registeredDomainProvider(): iterable
@@ -349,6 +359,16 @@ final class DomainCheckerServiceTest extends TestCase
         yield 'it - registered' => [
             'it',
             "Domain:             test-registered-domain.it\nStatus:             ok\n",
+        ];
+
+        yield 'hu - registered' => [
+            'hu',
+            "domain: test-registered-domain.hu\nregistrant-id: HU12345\n",
+        ];
+
+        yield 'pl - registered' => [
+            'pl',
+            "DOMAIN NAME: test-registered-domain.pl\nregistrant type: organization\n",
         ];
     }
 }
