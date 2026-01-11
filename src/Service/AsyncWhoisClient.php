@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\Http\Client\Request;
 use Amp\Socket\ConnectContext;
 use Amp\Socket\Socket;
 use Amp\TimeoutCancellation;
@@ -17,7 +19,6 @@ final class AsyncWhoisClient implements WhoisClientInterface
         'net' => 'whois.verisign-grs.com',
         'eu' => 'whois.eu',
         'org' => 'whois.pir.org',
-        'dev' => 'whois.nic.google',
         'ai' => 'whois.nic.ai',
         'info' => 'whois.afilias.net',
         'de' => 'whois.denic.de',
@@ -26,10 +27,23 @@ final class AsyncWhoisClient implements WhoisClientInterface
         'us' => 'whois.nic.us',
     ];
 
+    private const RDAP_SERVERS = [
+        'dev' => 'https://pubapi.registry.google/rdap/domain/',
+    ];
+
     private const WHOIS_PORT = 43;
     private const TIMEOUT = 10;
 
     public function query(string $domain, string $tld): ?string
+    {
+        if (isset(self::RDAP_SERVERS[$tld])) {
+            return $this->queryRdap($domain, $tld);
+        }
+
+        return $this->queryWhois($domain, $tld);
+    }
+
+    private function queryWhois(string $domain, string $tld): ?string
     {
         $server = self::WHOIS_SERVERS[$tld] ?? null;
 
@@ -60,9 +74,35 @@ final class AsyncWhoisClient implements WhoisClientInterface
         }
     }
 
+    private function queryRdap(string $domain, string $tld): ?string
+    {
+        $baseUrl = self::RDAP_SERVERS[$tld] ?? null;
+
+        if ($baseUrl === null) {
+            return null;
+        }
+
+        try {
+            $client = HttpClientBuilder::buildDefault();
+            $request = new Request($baseUrl . $domain);
+            $request->setTransferTimeout(self::TIMEOUT);
+
+            $response = $client->request($request);
+            $body = $response->getBody()->buffer();
+
+            // Return status code as part of response for pattern matching
+            return 'HTTP_STATUS:' . $response->getStatus() . "\n" . $body;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     public function getSupportedTlds(): array
     {
-        return array_keys(self::WHOIS_SERVERS);
+        return array_merge(
+            array_keys(self::WHOIS_SERVERS),
+            array_keys(self::RDAP_SERVERS),
+        );
     }
 
     private function buildQuery(string $domain, string $tld): string

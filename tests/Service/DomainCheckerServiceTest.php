@@ -138,9 +138,9 @@ final class DomainCheckerServiceTest extends TestCase
             "NOT FOUND\n>>> Last update of WHOIS database",
         ];
 
-        yield 'dev - available' => [
+        yield 'dev - available (RDAP 404)' => [
             'dev',
-            "No match for \"TEST-AVAILABLE-DOMAIN.DEV\".\n>>> Last update of whois database",
+            "HTTP_STATUS:404\n{\"errorCode\":404,\"title\":\"Not Found\"}",
         ];
 
         yield 'ai - available (NOT FOUND)' => [
@@ -216,9 +216,9 @@ final class DomainCheckerServiceTest extends TestCase
             "Domain Name: TEST-REGISTERED-DOMAIN.ORG\nRegistry Domain ID: 123456\n",
         ];
 
-        yield 'dev - registered' => [
+        yield 'dev - registered (RDAP 200)' => [
             'dev',
-            "Domain Name: TEST-REGISTERED-DOMAIN.DEV\nRegistry Domain ID: 123456\n",
+            "HTTP_STATUS:200\n{\"objectClassName\":\"domain\",\"ldhName\":\"test.dev\"}",
         ];
 
         yield 'ai - registered' => [

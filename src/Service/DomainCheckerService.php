@@ -12,7 +12,7 @@ final class DomainCheckerService
         'net' => '/No match for/i',
         'eu' => '/^Status:\s*AVAILABLE/mi',
         'org' => '/NOT FOUND/i',
-        'dev' => '/No match for/i',
+        'dev' => '/^HTTP_STATUS:404/m',
         'ai' => '/(NOT FOUND|No Data Found)/i',
         'info' => '/NOT FOUND/i',
         'de' => '/Status:\s*free/i',
