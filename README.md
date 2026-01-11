@@ -42,7 +42,13 @@ composer install
 
 3. Run:
    ```bash
-   docker-compose run --rm app
+   ./check.sh
+   ```
+
+   Or with options:
+   ```bash
+   ./check.sh -o csv    # output as CSV
+   ./check.sh -o json   # output as JSON
    ```
 
 ### Without Docker
