@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Service\AsyncWhoisClient;
 use App\Service\CsvReaderService;
 use App\Service\DomainCheckerService;
 use App\Service\DomainStatus;
-use App\Service\WhoisClient;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -15,6 +15,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function Amp\async;
+use function Amp\Future\await;
 
 #[AsCommand(
     name: 'app:check-domains',
@@ -23,7 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class CheckDomainsCommand extends Command
 {
     private const DEFAULT_FILE = './domains.csv';
-    private const DELAY_SECONDS = 1;
+    private const DEFAULT_CONCURRENCY = 5;
 
     protected function configure(): void
     {
@@ -41,6 +43,13 @@ final class CheckDomainsCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'Output format: table, csv, json',
                 'table',
+            )
+            ->addOption(
+                'concurrency',
+                'c',
+                InputOption::VALUE_REQUIRED,
+                'Number of concurrent WHOIS queries',
+                (string) self::DEFAULT_CONCURRENCY,
             );
     }
 
@@ -49,13 +58,19 @@ final class CheckDomainsCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $filePath = $input->getOption('file');
         $outputFormat = $input->getOption('output');
+        $concurrency = (int) $input->getOption('concurrency');
 
-        $whoisClient = new WhoisClient();
+        if ($concurrency < 1) {
+            $concurrency = self::DEFAULT_CONCURRENCY;
+        }
+
+        $whoisClient = new AsyncWhoisClient();
         $csvReader = new CsvReaderService();
         $domainChecker = new DomainCheckerService($whoisClient);
 
         $io->title('Domain Availability Checker');
         $io->text(sprintf('Supported TLDs: .%s', implode(', .', $domainChecker->getSupportedTlds())));
+        $io->text(sprintf('Concurrency: %d', $concurrency));
         $io->newLine();
 
         try {
@@ -77,13 +92,19 @@ final class CheckDomainsCommand extends Command
         $progressBar = $io->createProgressBar(count($domains));
         $progressBar->start();
 
-        foreach ($domains as $index => $domain) {
-            $result = $domainChecker->check($domain);
-            $results[] = $result;
-            $progressBar->advance();
+        $chunks = array_chunk($domains, $concurrency);
 
-            if ($index < count($domains) - 1) {
-                sleep(self::DELAY_SECONDS);
+        foreach ($chunks as $chunk) {
+            $futures = [];
+            foreach ($chunk as $domain) {
+                $futures[$domain] = async(fn() => $domainChecker->check($domain));
+            }
+
+            $chunkResults = await($futures);
+
+            foreach ($chunkResults as $result) {
+                $results[] = $result;
+                $progressBar->advance();
             }
         }
 

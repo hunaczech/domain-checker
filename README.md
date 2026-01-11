@@ -47,8 +47,9 @@ composer install
 
    Or with options:
    ```bash
-   ./check.sh -o csv    # output as CSV
-   ./check.sh -o json   # output as JSON
+   ./check.sh -o csv      # output as CSV
+   ./check.sh -o json     # output as JSON
+   ./check.sh -c 10       # run 10 concurrent queries (default: 5)
    ```
 
 ### Without Docker
