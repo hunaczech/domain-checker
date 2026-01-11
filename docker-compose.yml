@@ -3,4 +3,5 @@ services:
     build: .
     volumes:
       - ./domains.csv:/app/domains.csv:ro
+      - ./src:/app/src:ro
     working_dir: /app

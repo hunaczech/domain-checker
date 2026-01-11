@@ -14,6 +14,11 @@ final class DomainCheckerService
         'org' => '/NOT FOUND/i',
         'dev' => '/No match for/i',
         'ai' => '/(NOT FOUND|No Data Found)/i',
+        'info' => '/NOT FOUND/i',
+        'de' => '/Status:\s*free/i',
+        'at' => '/nothing found/i',
+        'es' => '/(LIBRE|NO EXISTE)/i',
+        'us' => '/No Data Found/i',
     ];
 
     private const REGISTERED_PATTERNS = [

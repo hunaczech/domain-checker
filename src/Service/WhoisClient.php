@@ -14,6 +14,11 @@ final class WhoisClient
         'org' => 'whois.pir.org',
         'dev' => 'whois.nic.google',
         'ai' => 'whois.nic.ai',
+        'info' => 'whois.afilias.net',
+        'de' => 'whois.denic.de',
+        'at' => 'whois.nic.at',
+        'es' => 'whois.nic.es',
+        'us' => 'whois.nic.us',
     ];
 
     private const WHOIS_PORT = 43;
@@ -35,7 +40,8 @@ final class WhoisClient
 
         stream_set_timeout($socket, self::TIMEOUT);
 
-        fwrite($socket, $domain . "\r\n");
+        $query = $this->buildQuery($domain, $tld);
+        fwrite($socket, $query . "\r\n");
 
         $response = '';
         while (!feof($socket)) {
@@ -50,5 +56,13 @@ final class WhoisClient
     public function getSupportedTlds(): array
     {
         return array_keys(self::WHOIS_SERVERS);
+    }
+
+    private function buildQuery(string $domain, string $tld): string
+    {
+        return match ($tld) {
+            'de' => '-T dn,ace ' . $domain,
+            default => $domain,
+        };
     }
 }
