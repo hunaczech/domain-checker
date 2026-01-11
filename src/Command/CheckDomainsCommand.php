@@ -50,6 +50,12 @@ final class CheckDomainsCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'Number of concurrent WHOIS queries',
                 (string) self::DEFAULT_CONCURRENCY,
+            )
+            ->addOption(
+                'watch',
+                'w',
+                InputOption::VALUE_NONE,
+                'Watch the file for changes and re-check domains automatically',
             );
     }
 
@@ -59,6 +65,7 @@ final class CheckDomainsCommand extends Command
         $filePath = $input->getOption('file');
         $outputFormat = $input->getOption('output');
         $concurrency = (int) $input->getOption('concurrency');
+        $watchMode = $input->getOption('watch');
 
         if ($concurrency < 1) {
             $concurrency = self::DEFAULT_CONCURRENCY;
@@ -71,8 +78,34 @@ final class CheckDomainsCommand extends Command
         $io->title('Domain Availability Checker');
         $io->text(sprintf('Supported TLDs: .%s', implode(', .', $domainChecker->getSupportedTlds())));
         $io->text(sprintf('Concurrency: %d', $concurrency));
+
+        if ($watchMode) {
+            $io->text('<info>Watch mode enabled</info>');
+            $io->text('<comment>Press Q to quit</comment>');
+        }
+
         $io->newLine();
 
+        // Run initial check
+        $result = $this->runDomainCheck($io, $output, $csvReader, $domainChecker, $filePath, $outputFormat, $concurrency);
+
+        if (!$watchMode) {
+            return $result;
+        }
+
+        // Watch mode loop
+        return $this->runWatchLoop($io, $output, $csvReader, $domainChecker, $filePath, $outputFormat, $concurrency);
+    }
+
+    private function runDomainCheck(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        CsvReaderService $csvReader,
+        DomainCheckerService $domainChecker,
+        string $filePath,
+        string $outputFormat,
+        int $concurrency,
+    ): int {
         try {
             $domains = $csvReader->readDomains($filePath);
         } catch (\RuntimeException $e) {
@@ -136,6 +169,78 @@ final class CheckDomainsCommand extends Command
         $io->newLine(2);
 
         $this->outputResults($io, $output, $results, $outputFormat);
+
+        return Command::SUCCESS;
+    }
+
+    private function runWatchLoop(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        CsvReaderService $csvReader,
+        DomainCheckerService $domainChecker,
+        string $filePath,
+        string $outputFormat,
+        int $concurrency,
+    ): int {
+        $lastModifiedTime = @filemtime($filePath);
+
+        // Set up non-blocking stdin
+        $stdin = fopen('php://stdin', 'r');
+        if ($stdin === false) {
+            $io->error('Could not open stdin for reading.');
+            return Command::FAILURE;
+        }
+        stream_set_blocking($stdin, false);
+
+        // Save terminal settings and set to raw mode for immediate key detection
+        $sttyMode = shell_exec('stty -g');
+        system('stty -icanon -echo');
+
+        $io->newLine();
+        $io->text(sprintf('<comment>Watching %s for changes... (Press Q to quit)</comment>', $filePath));
+
+        try {
+            while (true) {
+                // Check for keyboard input
+                $read = [$stdin];
+                $write = null;
+                $except = null;
+
+                if (stream_select($read, $write, $except, 0, 100000) > 0) {
+                    $char = fread($stdin, 1);
+                    if ($char === 'q' || $char === 'Q') {
+                        $io->newLine();
+                        $io->success('Watch mode terminated by user.');
+                        break;
+                    }
+                }
+
+                // Check for file changes
+                clearstatcache(true, $filePath);
+                $currentModifiedTime = @filemtime($filePath);
+
+                if ($currentModifiedTime !== false && $currentModifiedTime !== $lastModifiedTime) {
+                    $lastModifiedTime = $currentModifiedTime;
+
+                    $io->newLine();
+                    $io->section(sprintf('File changed at %s - Re-checking domains...', date('H:i:s')));
+
+                    $this->runDomainCheck($io, $output, $csvReader, $domainChecker, $filePath, $outputFormat, $concurrency);
+
+                    $io->newLine();
+                    $io->text(sprintf('<comment>Watching %s for changes... (Press Q to quit)</comment>', $filePath));
+                }
+
+                // Small sleep to avoid busy waiting
+                usleep(100000); // 100ms
+            }
+        } finally {
+            // Restore terminal settings
+            if ($sttyMode !== null) {
+                system('stty ' . $sttyMode);
+            }
+            fclose($stdin);
+        }
 
         return Command::SUCCESS;
     }
