@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DomainCheckerServiceTest extends TestCase
 {
-    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us'];
+    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us', 'sk', 'ua', 'lt', 'fi', 'se', 'nl', 'bg', 'pt', 'it'];
 
     #[Test]
     #[DataProvider('availableDomainProvider')]
@@ -187,6 +187,51 @@ final class DomainCheckerServiceTest extends TestCase
             'us',
             "No Data Found\nThe domain has not been registered",
         ];
+
+        yield 'sk - available' => [
+            'sk',
+            "DOMAIN NOT FOUND\n%No entries found",
+        ];
+
+        yield 'ua - available' => [
+            'ua',
+            "% No entries found for the selected source(s).\n%",
+        ];
+
+        yield 'lt - available' => [
+            'lt',
+            "Status: available\nRegistered: -",
+        ];
+
+        yield 'fi - available' => [
+            'fi',
+            "Domain not found\n",
+        ];
+
+        yield 'se - available' => [
+            'se',
+            "\"test-available-domain.se\" not found.\n",
+        ];
+
+        yield 'nl - available' => [
+            'nl',
+            "test-available-domain.nl is free\n",
+        ];
+
+        yield 'bg - available' => [
+            'bg',
+            "registration status: available\n",
+        ];
+
+        yield 'pt - available' => [
+            'pt',
+            "No match for \"test-available-domain.pt\"\n",
+        ];
+
+        yield 'it - available' => [
+            'it',
+            "Domain:             test-available-domain.it\nStatus:             AVAILABLE\n",
+        ];
     }
 
     public static function registeredDomainProvider(): iterable
@@ -259,6 +304,51 @@ final class DomainCheckerServiceTest extends TestCase
         yield 'us - registered' => [
             'us',
             "Domain Name: TEST-REGISTERED-DOMAIN.US\nRegistry Domain ID: 123456\n",
+        ];
+
+        yield 'sk - registered' => [
+            'sk',
+            "Domain-name: test-registered-domain.sk\nAdmin-id: SK-1234\n",
+        ];
+
+        yield 'ua - registered' => [
+            'ua',
+            "domain: test-registered-domain.ua\nstatus: ok\n",
+        ];
+
+        yield 'lt - registered' => [
+            'lt',
+            "Domain: test-registered-domain.lt\nStatus: registered\n",
+        ];
+
+        yield 'fi - registered' => [
+            'fi',
+            "domain: test-registered-domain.fi\nstatus: Registered\n",
+        ];
+
+        yield 'se - registered' => [
+            'se',
+            "domain: test-registered-domain.se\nstate: active\n",
+        ];
+
+        yield 'nl - registered' => [
+            'nl',
+            "Domain name: test-registered-domain.nl\nStatus: active\n",
+        ];
+
+        yield 'bg - registered' => [
+            'bg',
+            "DOMAIN NAME: test-registered-domain.bg\nregistration status: registered\n",
+        ];
+
+        yield 'pt - registered' => [
+            'pt',
+            "Domain Name: test-registered-domain.pt\nCreation Date: 2020-01-01\n",
+        ];
+
+        yield 'it - registered' => [
+            'it',
+            "Domain:             test-registered-domain.it\nStatus:             ok\n",
         ];
     }
 }

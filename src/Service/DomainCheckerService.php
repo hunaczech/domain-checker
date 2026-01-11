@@ -20,6 +20,15 @@ final class DomainCheckerService
         'at' => '/nothing found/i',
         'es' => '/(LIBRE|NO EXISTE)/i',
         'us' => '/No Data Found/i',
+        'sk' => '/DOMAIN NOT FOUND/i',
+        'ua' => '/No entries found/i',
+        'lt' => '/Status:\s*available/i',
+        'fi' => '/Domain not found/i',
+        'se' => '/not found/i',
+        'nl' => '/is free/i',
+        'bg' => '/registration status:\s*available/i',
+        'pt' => '/no match/i',
+        'it' => '/Status:\s*AVAILABLE/i',
     ];
 
     private const REGISTERED_PATTERNS = [

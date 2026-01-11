@@ -26,6 +26,15 @@ final class AsyncWhoisClient implements WhoisClientInterface
         'at' => 'whois.nic.at',
         'es' => 'whois.nic.es',
         'us' => 'whois.nic.us',
+        'sk' => 'whois.sk-nic.sk',
+        'ua' => 'whois.ua',
+        'lt' => 'whois.domreg.lt',
+        'fi' => 'whois.fi',
+        'se' => 'whois.iis.se',
+        'nl' => 'whois.domain-registry.nl',
+        'bg' => 'whois.register.bg',
+        'pt' => 'whois.dns.pt',
+        'it' => 'whois.nic.it',
     ];
 
     private const RDAP_SERVERS = [

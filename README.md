@@ -17,6 +17,15 @@ CLI tool to check domain availability via WHOIS.
 - `.at` - Austria
 - `.es` - Spain
 - `.us` - United States
+- `.sk` - Slovakia
+- `.ua` - Ukraine
+- `.lt` - Lithuania
+- `.fi` - Finland
+- `.se` - Sweden
+- `.nl` - Netherlands
+- `.bg` - Bulgaria
+- `.pt` - Portugal
+- `.it` - Italy
 
 ## Requirements
 
