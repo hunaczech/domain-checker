@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use App\Command\CheckDomainsCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application('Domain Checker', '1.0.0');
+$application->add(new CheckDomainsCommand());
+$application->setDefaultCommand('app:check-domains', true);
+$application->run();
