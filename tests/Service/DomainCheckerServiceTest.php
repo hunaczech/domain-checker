@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DomainCheckerServiceTest extends TestCase
 {
-    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'info', 'de', 'at', 'es', 'us'];
+    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us'];
 
     #[Test]
     #[DataProvider('availableDomainProvider')]
@@ -153,6 +153,11 @@ final class DomainCheckerServiceTest extends TestCase
             "No Data Found\nThe domain has not been registered",
         ];
 
+        yield 'io - available' => [
+            'io',
+            "Domain not found.\n>>> Last update of WHOIS database",
+        ];
+
         yield 'info - available' => [
             'info',
             "NOT FOUND\nThe queried object does not exist",
@@ -224,6 +229,11 @@ final class DomainCheckerServiceTest extends TestCase
         yield 'ai - registered' => [
             'ai',
             "Domain Name: TEST-REGISTERED-DOMAIN.AI\nRegistry Domain ID: 123456\n",
+        ];
+
+        yield 'io - registered' => [
+            'io',
+            "Domain Name: TEST-REGISTERED-DOMAIN.IO\nRegistry Domain ID: 123456\nRegistrar: Example Registrar\n",
         ];
 
         yield 'info - registered' => [

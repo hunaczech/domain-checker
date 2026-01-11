@@ -14,6 +14,7 @@ final class DomainCheckerService
         'org' => '/NOT FOUND/i',
         'dev' => '/^HTTP_STATUS:404/m',
         'ai' => '/(NOT FOUND|No Data Found)/i',
+        'io' => '/Domain not found/i',
         'info' => '/NOT FOUND/i',
         'de' => '/Status:\s*free/i',
         'at' => '/nothing found/i',

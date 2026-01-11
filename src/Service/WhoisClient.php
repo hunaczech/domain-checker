@@ -13,6 +13,7 @@ final class WhoisClient implements WhoisClientInterface
         'eu' => 'whois.eu',
         'org' => 'whois.pir.org',
         'ai' => 'whois.nic.ai',
+        'io' => 'whois.nic.io',
         'info' => 'whois.afilias.net',
         'de' => 'whois.denic.de',
         'at' => 'whois.nic.at',

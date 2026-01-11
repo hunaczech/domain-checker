@@ -11,6 +11,7 @@ CLI tool to check domain availability via WHOIS.
 - `.org` - Organization
 - `.dev` - Development
 - `.ai` - Anguilla (popular for AI)
+- `.io` - British Indian Ocean Territory (popular for tech)
 - `.info` - Information
 - `.de` - Germany
 - `.at` - Austria
