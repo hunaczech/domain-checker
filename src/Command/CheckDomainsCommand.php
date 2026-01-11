@@ -92,19 +92,43 @@ final class CheckDomainsCommand extends Command
         $progressBar = $io->createProgressBar(count($domains));
         $progressBar->start();
 
-        $chunks = array_chunk($domains, $concurrency);
+        // Group domains by TLD to avoid rate limiting
+        $domainsByTld = $this->groupDomainsByTld($domains);
 
-        foreach ($chunks as $chunk) {
+        // Process in rounds - one domain per TLD per round to spread load
+        while (!empty($domainsByTld)) {
+            $batch = [];
+
+            // Take one domain from each TLD (up to concurrency limit)
+            foreach ($domainsByTld as $tld => $tldDomains) {
+                if (count($batch) >= $concurrency) {
+                    break;
+                }
+
+                $domain = array_shift($domainsByTld[$tld]);
+                $batch[] = $domain;
+
+                if (empty($domainsByTld[$tld])) {
+                    unset($domainsByTld[$tld]);
+                }
+            }
+
+            // Process batch concurrently
             $futures = [];
-            foreach ($chunk as $domain) {
+            foreach ($batch as $domain) {
                 $futures[$domain] = async(fn() => $domainChecker->check($domain));
             }
 
-            $chunkResults = await($futures);
+            $batchResults = await($futures);
 
-            foreach ($chunkResults as $result) {
+            foreach ($batchResults as $result) {
                 $results[] = $result;
                 $progressBar->advance();
+            }
+
+            // Small delay between batches to avoid rate limiting
+            if (!empty($domainsByTld)) {
+                usleep(200000); // 200ms delay
             }
         }
 
@@ -189,5 +213,22 @@ final class CheckDomainsCommand extends Command
         ], $results);
 
         $output->writeln(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * @param array<string> $domains
+     * @return array<string, array<string>>
+     */
+    private function groupDomainsByTld(array $domains): array
+    {
+        $grouped = [];
+
+        foreach ($domains as $domain) {
+            $parts = explode('.', $domain);
+            $tld = strtolower(end($parts));
+            $grouped[$tld][] = $domain;
+        }
+
+        return $grouped;
     }
 }
