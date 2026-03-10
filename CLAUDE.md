@@ -70,11 +70,11 @@ To add a new TLD (e.g., `.xx`), update these 5 locations:
 
 5. **`README.md`** - Add to supported TLDs list
 
-## Currently Supported TLDs (24)
+## Currently Supported TLDs (26)
 
 WHOIS: cz, com, net, eu, org, ai, io, info, de, at, es, us, sk, ua, lt, fi, se, nl, bg, pt, it, hu, pl
 
-RDAP: dev (uses Google's RDAP API)
+RDAP: dev, app (Google's RDAP API), now (Nominet RDAP API)
 
 ## Coding Conventions
 

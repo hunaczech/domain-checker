@@ -28,6 +28,8 @@ CLI tool to check domain availability via WHOIS.
 - `.it` - Italy
 - `.hu` - Hungary
 - `.pl` - Poland
+- `.app` - Application (Google)
+- `.now` - Now (Amazon)
 
 ## Requirements
 

@@ -31,6 +31,8 @@ final class DomainCheckerService
         'it' => '/Status:\s*AVAILABLE/i',
         'hu' => '/No match/i',
         'pl' => '/No information available about domain name/i',
+        'app' => '/^HTTP_STATUS:404/m',
+        'now' => '/^HTTP_STATUS:404/m',
     ];
 
     private const REGISTERED_PATTERNS = [

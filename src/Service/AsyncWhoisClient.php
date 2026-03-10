@@ -41,6 +41,8 @@ final class AsyncWhoisClient implements WhoisClientInterface
 
     private const RDAP_SERVERS = [
         'dev' => 'https://pubapi.registry.google/rdap/domain/',
+        'app' => 'https://pubapi.registry.google/rdap/domain/',
+        'now' => 'https://rdap.nominet.uk/now/domain/',
     ];
 
     private const WHOIS_PORT = 43;

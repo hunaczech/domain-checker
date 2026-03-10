@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DomainCheckerServiceTest extends TestCase
 {
-    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us', 'sk', 'ua', 'lt', 'fi', 'se', 'nl', 'bg', 'pt', 'it', 'hu', 'pl'];
+    private const SUPPORTED_TLDS = ['cz', 'com', 'net', 'eu', 'org', 'dev', 'ai', 'io', 'info', 'de', 'at', 'es', 'us', 'sk', 'ua', 'lt', 'fi', 'se', 'nl', 'bg', 'pt', 'it', 'hu', 'pl', 'app', 'now'];
 
     #[Test]
     #[DataProvider('availableDomainProvider')]
@@ -242,6 +242,16 @@ final class DomainCheckerServiceTest extends TestCase
             'pl',
             "No information available about domain name test-available-domain.pl in the Registry NASK database.\n",
         ];
+
+        yield 'app - available (RDAP 404)' => [
+            'app',
+            "HTTP_STATUS:404\n{\"errorCode\":404,\"title\":\"Not Found\"}",
+        ];
+
+        yield 'now - available (RDAP 404)' => [
+            'now',
+            "HTTP_STATUS:404\n{\"errorCode\":404,\"title\":\"Not Found\"}",
+        ];
     }
 
     public static function registeredDomainProvider(): iterable
@@ -369,6 +379,16 @@ final class DomainCheckerServiceTest extends TestCase
         yield 'pl - registered' => [
             'pl',
             "DOMAIN NAME: test-registered-domain.pl\nregistrant type: organization\n",
+        ];
+
+        yield 'app - registered (RDAP 200)' => [
+            'app',
+            "HTTP_STATUS:200\n{\"objectClassName\":\"domain\",\"ldhName\":\"test.app\"}",
+        ];
+
+        yield 'now - registered (RDAP 200)' => [
+            'now',
+            "HTTP_STATUS:200\n{\"objectClassName\":\"domain\",\"ldhName\":\"test.now\"}",
         ];
     }
 }
